@@ -27,20 +27,15 @@ public class StateContext implements CommonStr {
 
 	private int index = 0;
 	private int menu = -1;
-	
-//  private String format = "%4s %6s %6s %6s %8s  %-20s %-15s %-10s %-7s %5s";
-//	private String format = "%4s %-16s %-6s %-13s %3s %8s %8s %8s %8s   %-8s";
-//	private String format = "%4s %-16s %-6s %-13s %3s %8s %8s %8s   %-8s";
-//	private String format = "%4s %-16s %-6s %-20s %3s %8s %8s %8s   %-8s";
-	private String format = "%4s %-16s %-6s %-20s %3s %8s %8s %8s   %-5s %4s"; // 20201119 MMI_STAT 추가
+
+	private String format = "%4s %-16s %-6s %-20s %3s %8s %8s %8s   %-5s %4s";
 	private String prompt = null;
+	private String buffer = null;
+//	private String netwrokType = null;
 
 	private Map<String, Object> currentmap = null;
-	private String buffer = null;
 	
 	private State state = null;
-
-	private String netwrokType = null;
 
 	public StateContext() {
 		System.out.print(getDataHead());
@@ -59,12 +54,12 @@ public class StateContext implements CommonStr {
 			statusList = Utils.jsonStrToList(jsonStr);
 		}
 
-		String type = STATE_0;
+		String type = STATE_1;
 		if (state != null) {
 			type = state.toString();
 		}
 
-		if (STATE_0.equals(type)) {
+		if (STATE_1.equals(type)) {
 			return;
 		}
 
@@ -118,22 +113,12 @@ public class StateContext implements CommonStr {
 	private String getScreen() {
 		StringBuffer buffer = new StringBuffer();
 
-		String type = STATE_0;
+		String type = STATE_1;
 		if (state != null) {
 			type = state.toString();
 		}
 
 		switch (type) {
-		case STATE_0:
-			buffer.append("Welcome CATS process monitoring tool \n");
-			buffer.append(" 1.").append("select ").append(underLine("C 코어망", 0, 1)).append("\n");
-			buffer.append(" 2.").append("select ").append(underLine("B 기간망", 0, 1)).append("\n");
-			buffer.append(" 3.").append("select ").append(underLine("T 전화망", 0, 1)).append("\n");
-			buffer.append(" 4.").append("select ").append(underLine("A 전체망", 0, 1)).append("\n");
-			buffer.append(" 5.").append(underLine("Exit ", 0, 1));
-			buffer.append("\n\n");
-
-			break;
 		case STATE_1:
 			buffer.append("Welcome CATS process monitoring tool \n");
 			buffer.append(" 1.").append("select ").append(underLine("One ", 0, 1));
@@ -177,21 +162,20 @@ public class StateContext implements CommonStr {
 
 	private String getPrompt() {
 		
-		String type = STATE_0;
+		String type = STATE_1;
 		if (state != null) {
 			type = state.toString();
 		}
 
 		switch (type) {
-		case STATE_0:
 		case STATE_1:
 		case STATE_2:
 			prompt = "choose a number or underlying letter : \n";
-			
+
 			break;
 		case STATE_3:
 			prompt = "Do you really want execute?(y/n) \n";
-			
+
 			break;
 		default:
 			break;
@@ -207,19 +191,8 @@ public class StateContext implements CommonStr {
 		buffer.append(getPrompt());
 		buffer.append(Utils.setLine("-", 100));
 
-		String string = null;
-
-		String type = STATE_0;
-		if (state != null) {
-			type = state.toString();
-		}
-
-		if (STATE_0.equals(type)) {
-			string = "\n";
-		} else {
-			string = String.format(format + "\n", "NO", "IP", "PID", "PROCESS", "CFG", "%CPU", "%MEM", "DEFUNCT",
-					"STAT", "MMI_STAT");
-		}
+		String string = String.format(format + "\n", "NO", "IP", "PID", "PROCESS", "CFG", "%CPU", "%MEM", "DEFUNCT",
+		"STAT", "MMI_STAT");
 
 		buffer.append(string);
 		string = buffer.toString();
@@ -231,15 +204,6 @@ public class StateContext implements CommonStr {
 	}
 
 	private String getDataBody() {
-		String type = STATE_0;
-		if (state != null) {
-			type = state.toString();
-		}
-
-		if (STATE_0.equals(type)) {
-			return "";
-		}
-
 		if (statusList == null || statusList.size() == 0) {
 			return "";
 		}
@@ -255,44 +219,6 @@ public class StateContext implements CommonStr {
 			}
 
 			currentmap = status;
-			String procCode = getValue(PROC_CODE);
-
-			if (netwrokType != null) {
-				switch (netwrokType) {
-				case "C":
-					if ("IMMI".equals(procCode) || "BMMI".equals(procCode) || "TMMI".equals(procCode)) {
-						continue;
-					}
-					
-					if ("IEGN".equals(procCode) || "BEGN".equals(procCode) || "TEGN".equals(procCode)) {
-						continue;
-					}
-
-					break;
-				case "B":
-					if ("IMMI".equals(procCode) || "CMMI".equals(procCode) || "TMMI".equals(procCode)) {
-						continue;
-					}
-
-					if ("IEGN".equals(procCode) || "CEGN".equals(procCode) || "TEGN".equals(procCode)) {
-						continue;
-					}
-
-					break;
-				case "T":
-					if ("IMMI".equals(procCode) || "BMMI".equals(procCode) || "CMMI".equals(procCode)) {
-						continue;
-					}
-					
-					if ("IEGN".equals(procCode) || "BEGN".equals(procCode) || "CEGN".equals(procCode)) {
-						continue;
-					}
-
-					break;
-				default:
-					break;
-				}
-			}
 
 			String procStat = getValue(PROC_STAT);
 			if (procStat == null || procStat.length() == 0) {
@@ -539,17 +465,9 @@ public class StateContext implements CommonStr {
 	}
 
 	private String underLine(String data, int stt, int end) {
-		String src = data.substring(stt, end);
-		String trg = data.replace(src, "\033[4m" + src + "\033[0m");
+		String source = data.substring(stt, end);
+		String target = data.replace(source, "\033[4m" + source + "\033[0m");
 
-		return trg;
-	}
-
-	public String getNetwrokType() {
-		return netwrokType;
-	}
-
-	public void setNetwrokType(String netwrokType) {
-		this.netwrokType = netwrokType;
+		return target;
 	}
 }

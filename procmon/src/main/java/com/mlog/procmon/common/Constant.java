@@ -10,5 +10,4 @@ public class Constant {
 
 	public static final String PROCMON_HOST = "procmon.host";
 	public static final String PROCMON_PORT = "procmon.port";
-
 }

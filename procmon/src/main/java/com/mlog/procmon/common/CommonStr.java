@@ -14,7 +14,6 @@ public interface CommonStr {
 	public final String PROC_IP   = "PROC_IP";
 	public final String PROC_LIST = "PROC_LIST";
 	public final String WATCH_YN  = "WATCH_YN";
-	
 
 	public final String PROC_NAME = "PROC_NAME";
 	public final String PROC_INDX = "PROC_INDX";
@@ -30,7 +29,7 @@ public interface CommonStr {
 
 	public final String SELECT = "SELECT";
 
-	public final String STATE_0 = "0";
+//	public final String STATE_0 = "0";
 	public final String STATE_1 = "1";
 	public final String STATE_2 = "2";
 	public final String STATE_3 = "3";
